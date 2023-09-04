@@ -1,4 +1,4 @@
-default:
+my_store:
   outputs:
     dev:
     type: snowflake
