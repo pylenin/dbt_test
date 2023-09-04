@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: my_store
+    database: my_store  
+    schema: raw  
+    tables:
+      - name: orders
