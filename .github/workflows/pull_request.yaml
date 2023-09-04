@@ -1,4 +1,4 @@
-name: Run dbt Model
+name: Run dbt Model in DEV
 
 on:
   pull_request:
