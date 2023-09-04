@@ -18,7 +18,7 @@ jobs:
 
     - name: Install dbt
       run: |
-        pip install dbt
+        pip install dbt-snowflake
         dbt --version
 
     - name: Configure dbt
