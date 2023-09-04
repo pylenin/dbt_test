@@ -1,38 +1,75 @@
-name: Run dbt Model
+name: DBT Deploy
 
 on:
-  workflow_dispatch: # This event triggers the workflow manually
+  push:
+    branches:
+      - main  # Run on the main branch
+      - development  # Run on the development branch
+  schedule:
+    - cron: '0 23 * * *'  # Run daily at 11 PM UTC
 
 jobs:
-  run_dbt_model:
+  dbt_deploy:
     runs-on: ubuntu-latest
 
-    env:
-      DBT_SNOWFLAKE_ACCOUNT: ${{ secrets.DBT_SNOWFLAKE_ACCOUNT }}
-      DBT_SNOWFLAKE_USERNAME: ${{ secrets.DBT_SNOWFLAKE_USERNAME }}
-      DBT_SNOWFLAKE_ROLE: ${{ secrets.DBT_SNOWFLAKE_ROLE }}
-      DBT_SNOWFLAKE_PW: ${{ secrets.DBT_SNOWFLAKE_PW }}
-      DBT_SNOWFLAKE_DATABASE: ${{ secrets.DBT_SNOWFLAKE_DATABASE }}
-      DBT_SNOWFLAKE_WAREHOUSE: ${{ secrets.DBT_SNOWFLAKE_WAREHOUSE }}
-      DBT_SNOWFLAKE_SCHEMA: ${{ secrets.DBT_SNOWFLAKE_SCHEMA }}
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9 # Set the desired Python version
+          python-version: '3.x'  # Choose the Python version you need
 
       - name: Install dbt
-        run: pip install dbt-snowflake
+        run: pip install dbt
 
-      - name: Debug dbt Environment
-        run: dbt debug --profile my_store
+      - name: Configure Snowflake CLI
+        run: |
+          snowflake_username="$DBT_SNOWFLAKE_USERNAME"
+          snowflake_password="$DBT_SNOWFLAKE_PW"
+          snowflake_account="$DBT_SNOWFLAKE_ACCOUNT"
+          snowflake_warehouse="$DBT_SNOWFLAKE_WAREHOUSE"
+          snowflake_database="$DBT_SNOWFLAKE_DATABASE"
+          snowflake_schema="$DBT_SNOWFLAKE_SCHEMA"
 
-      - name: Download dbt packages
-        run: dbt deps
+          # Configure dbt with dev profile for the development branch
+          if [ "${GITHUB_REF##*/}" == "development" ]; then
+            dbt profiles generate dev
+            echo "  target: dev" >> profiles.yml
+            echo "  outputs:" >> profiles.yml
+            echo "    dev:" >> profiles.yml
+            echo "      type: snowflake" >> profiles.yml
+            echo "      threads: 4" >> profiles.yml
+            echo "      account: $snowflake_account" >> profiles.yml
+            echo "      user: $snowflake_username" >> profiles.yml
+            echo "      role: $snowflake_role" >> profiles.yml
+            echo "      password: $snowflake_password" >> profiles.yml
+            echo "      database: $snowflake_database" >> profiles.yml
+            echo "      warehouse: $snowflake_warehouse" >> profiles.yml
+            echo "      schema: $snowflake_schema" >> profiles.yml
+            echo "      client_session_keep_alive: False" >> profiles.yml
+            echo "      query_tag: github_action_query" >> profiles.yml
+          fi
 
-      - name: Run dbt Model
-        run: dbt run
+          # Configure dbt with prod profile for the main branch
+          if [ "${GITHUB_REF##*/}" == "main" ]; then
+            dbt profiles generate prod
+            echo "  target: prod" >> profiles.yml
+            echo "  outputs:" >> profiles.yml
+            echo "    prod:" >> profiles.yml
+            echo "      type: snowflake" >> profiles.yml
+            echo "      threads: 4" >> profiles.yml
+            echo "      account: $DBT_SNOWFLAKE_ACCOUNT_PROD" >> profiles.yml
+            echo "      user: $DBT_SNOWFLAKE_USERNAME_PROD" >> profiles.yml
+            echo "      role: $DBT_SNOWFLAKE_ROLE_PROD" >> profiles.yml
+            echo "      password: $DBT_SNOWFLAKE_PW_PROD" >> profiles.yml
+            echo "      database: $DBT_SNOWFLAKE_DATABASE_PROD" >> profiles.yml
+            echo "      warehouse: $DBT_SNOWFLAKE_WAREHOUSE_PROD" >> profiles.yml
+            echo "      schema: $DBT_SNOWFLAKE_SCHEMA_PROD" >> profiles.yml
+            echo "      client_session_keep_alive: False" >> profiles.yml
+            echo "      query_tag: github_action_query" >> profiles.yml
+          fi
+
+      - name: Deploy dbt project
+        run: dbt run --profiles-dir . --target ${GITHUB_REF##*/}
