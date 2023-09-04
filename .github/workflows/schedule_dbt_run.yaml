@@ -3,12 +3,6 @@ name: Run dbt Model
 on:
   workflow_dispatch: # This event allows manual triggering
 
-env:
-  DBT_PROFILES_DIR: ./
-  DBT_SNOWFLAKE_USERNAME: ${{ secrets.DBT_SNOWFLAKE_USERNAME }}
-  DBT_SNOWFLAKE_PW: ${{ secrets.DBT_SNOWFLAKE_PW }}
-  DBT_SNOWFLAKE_ROLE: ${{ secrets.DBT_SNOWFLAKE_ROLE }}
-
 jobs:
   dbt_run:
     runs-on: ubuntu-latest
