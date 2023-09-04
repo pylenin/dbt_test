@@ -17,7 +17,7 @@ jobs:
           python-version: 3.9 # Set the desired Python version
 
       - name: Install dbt
-        run: pip install dbt
+        run: pip install dbt-snowflake
 
       - name: Set environment variables
         env:
@@ -33,4 +33,4 @@ jobs:
         run: dbt debug --profile my_store
 
       - name: Run dbt Model
-        run: dbt run -m your_model_name_here --profile my_store
+        run: dbt run ore
