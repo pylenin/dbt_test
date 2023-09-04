@@ -1,4 +1,4 @@
-name: Run dbt Model
+name: Run dbt Model in PROD
 
 on:
   workflow_dispatch: # Allow manual triggering
