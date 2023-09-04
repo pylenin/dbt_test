@@ -22,7 +22,7 @@ jobs:
           python-version: '3.x'  # Choose the Python version you need
 
       - name: Install dbt
-        run: pip install dbt
+        run: pip install dbt-snowflake
 
       - name: Configure Snowflake CLI
         run: |
