@@ -3,7 +3,7 @@ my_store:
   outputs:
     dev:
       type: snowflake
-      threads: 1
+      threads: 4
       account: "{{ env_var('DBT_SNOWFLAKE_ACCOUNT') }}"
       user: "{{ env_var('DBT_SNOWFLAKE_USERNAME') }}"
       role: "{{ env_var('DBT_SNOWFLAKE_ROLE') }}"
