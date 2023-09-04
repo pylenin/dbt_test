@@ -13,3 +13,15 @@ my_store:
       schema: "{{ env_var('DBT_SNOWFLAKE_SCHEMA') }}"
       client_session_keep_alive: False
       query_tag: github_action_query
+    prod:
+      type: snowflake
+      threads: 4
+      account: "{{ env_var('DBT_SNOWFLAKE_ACCOUNT_PROD') }}"
+      user: "{{ env_var('DBT_SNOWFLAKE_USERNAME_PROD') }}"
+      role: "{{ env_var('DBT_SNOWFLAKE_ROLE_PROD') }}"
+      password: "{{ env_var('DBT_SNOWFLAKE_PW_PROD') }}"
+      database: "{{ env_var('DBT_SNOWFLAKE_DATABASE_PROD') }}"
+      warehouse: "{{ env_var('DBT_SNOWFLAKE_WAREHOUSE_PROD') }}"
+      schema: "{{ env_var('DBT_SNOWFLAKE_SCHEMA_PROD') }}"
+      client_session_keep_alive: False
+      query_tag: github_action_query
